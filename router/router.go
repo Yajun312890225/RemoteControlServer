@@ -19,7 +19,7 @@ func InitRouter() *gin.Engine {
 
 	r.GET("/ws", handler.Connect)
 	r.POST("/control", handler.Control)
-	r.GET("/getstatus", handler.GetStatus)
+	r.GET("/getstatus", handler.GetAllDevicesStatus)
 	r.GET("/getdevice", handler.GetDevice)
 	r.POST("/login", handler.Login)
 	r.POST("/binddevice", handler.BindDevice)

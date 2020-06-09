@@ -1,6 +1,15 @@
 definitions:
+  dao.BindDeviceDao:
+    properties:
+      deviceId:
+        type: string
+      userId:
+        type: string
+    type: object
   model.Message:
     properties:
+      deviceId:
+        type: string
       during:
         description: 持续时间
         type: integer
@@ -8,6 +17,7 @@ definitions:
         description: 1打开 2 关闭
         type: integer
     required:
+    - deviceId
     - type
     type: object
   model.Res:
@@ -19,13 +29,6 @@ definitions:
       error:
         type: string
       msg:
-        type: string
-    type: object
-  model.UserDevice:
-    properties:
-      deviceId:
-        type: string
-      userId:
         type: string
     type: object
 info:
@@ -43,7 +46,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/model.UserDevice'
+          $ref: '#/definitions/dao.BindDeviceDao'
       responses:
         "200":
           description: '{"code": -1, "message": "抱歉未找到相关信息"}'
@@ -90,6 +93,11 @@ paths:
       consumes:
       - application/json
       description: 获取JSON
+      parameters:
+      - description: openId
+        in: query
+        name: openId
+        type: string
       responses:
         "200":
           description: '{"code": -1, "message": "抱歉未找到相关信息"}'

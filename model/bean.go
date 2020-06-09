@@ -46,16 +46,10 @@ type User struct {
 type Device struct {
 	DeviceId  string     `gorm:"primary_key;"  json:"deviceId"`
 	IP        string     `gorm:"type:varchar(128)"  json:"ip"`
-	IsBind    string     `gorm:"type:int(1);DEFAULT:0;" json:"isBind"`
+	BindUser  string     `gorm:"type:varchar(128);" json:"bindUser"`
 	CreatedAt time.Time  `json:"createdAt"`
 	UpdatedAt time.Time  `json:"updatedAt"`
 	DeletedAt *time.Time `json:"deletedAt"`
-}
-
-// UserDevice
-type UserDevice struct {
-	UserId   string `gorm:"primary_key"  json:"userId"`
-	DeviceId string `gorm:"primary_key"  json:"deviceId"`
 }
 
 // Res 请求返回统一格式

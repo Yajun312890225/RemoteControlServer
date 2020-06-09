@@ -4,6 +4,5 @@ func migration() {
 	DB.AutoMigrate(
 		User{},
 		Device{},
-		UserDevice{},
 	)
 }

@@ -3,6 +3,7 @@ package websocket
 import (
 	. "RemoteControlServer/model"
 	"log"
+	"strings"
 
 	. "RemoteControlServer/dao"
 
@@ -10,16 +11,18 @@ import (
 )
 
 type ClientManager struct {
-	Clients    map[*Client]bool
-	Register   chan *Client
-	Unregister chan *Client
+	Clients       map[*Client]bool
+	Register      chan *Client
+	Unregister    chan *Client
+	ClientsStatus map[string]bool
 }
 
 type Client struct {
-	Id     string
-	Socket *websocket.Conn
-	Send   chan interface{}
-	IP     string
+	Id       string
+	Socket   *websocket.Conn
+	Send     chan interface{}
+	IP       string
+	BindUser string
 }
 
 func (m *ClientManager) Init() {
@@ -32,6 +35,7 @@ func (m *ClientManager) Init() {
 			if _, ok := m.Clients[conn]; ok {
 				close(conn.Send)
 				delete(m.Clients, conn)
+				m.ClientsStatus[strings.ToUpper(strings.Replace(conn.Id, ":", "", -1))] = false
 				log.Println("A socket has disconnected.")
 			}
 		}
@@ -44,6 +48,17 @@ func (m *ClientManager) Send(message interface{}, deviceId string) {
 			conn.Send <- message
 		}
 	}
+}
+func (m *ClientManager) GetClientStatus(devices []Device) map[string]bool {
+	status := make(map[string]bool)
+	for _, device := range devices {
+		if curstatus, ok := m.ClientsStatus[device.DeviceId]; ok == false {
+			status[device.DeviceId] = false
+		} else {
+			status[device.DeviceId] = curstatus
+		}
+	}
+	return status
 }
 
 func (c *Client) Read() {
@@ -61,9 +76,14 @@ func (c *Client) Read() {
 			break
 		}
 		//此处处理客户端来的数据
-		c.Id = msg.MacId
+		c.Id = strings.ToUpper(strings.Replace(msg.MacId, ":", "", -1))
 		device := DeviceDao{}
 		device.DeviceOnline(c.Id, c.IP)
+
+		if dev, err := device.GetDevice(c.Id); err != nil {
+			c.BindUser = dev.BindUser
+		}
+		GetManager().ClientsStatus[strings.ToUpper(strings.Replace(c.Id, ":", "", -1))] = true
 	}
 }
 
@@ -92,9 +112,10 @@ func GetManager() *ClientManager {
 
 func init() {
 	manager = &ClientManager{
-		Register:   make(chan *Client),
-		Unregister: make(chan *Client),
-		Clients:    make(map[*Client]bool),
+		Register:      make(chan *Client),
+		Unregister:    make(chan *Client),
+		Clients:       make(map[*Client]bool),
+		ClientsStatus: make(map[string]bool),
 	}
 	go manager.Init()
 }

@@ -22,7 +22,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.UserDevice"
+                            "$ref": "#/definitions/dao.BindDeviceDao"
                         }
                     }
                 ],
@@ -97,6 +97,14 @@
                     "Control"
                 ],
                 "summary": "获取状态",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "openId",
+                        "name": "openId",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
@@ -140,12 +148,27 @@
         }
     },
     "definitions": {
+        "dao.BindDeviceDao": {
+            "type": "object",
+            "properties": {
+                "deviceId": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Message": {
             "type": "object",
             "required": [
+                "deviceId",
                 "type"
             ],
             "properties": {
+                "deviceId": {
+                    "type": "string"
+                },
                 "during": {
                     "description": "持续时间",
                     "type": "integer"
@@ -169,17 +192,6 @@
                     "type": "string"
                 },
                 "msg": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.UserDevice": {
-            "type": "object",
-            "properties": {
-                "deviceId": {
-                    "type": "string"
-                },
-                "userId": {
                     "type": "string"
                 }
             }

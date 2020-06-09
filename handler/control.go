@@ -44,30 +44,34 @@ func Control(c *gin.Context) {
 	})
 }
 
-// GetStatus 获取状态
+// GetAllDevicesStatus 获取状态
 // @Summary 获取状态
 // @Description 获取JSON
 // @Tags Control
 // @Accept  application/json
 // @Product application/json
+// @Param openId query string false "openId"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /getstatus [get]
-func GetStatus(c *gin.Context) {
-	mangager := GetManager()
-	if len(mangager.Clients) == 0 {
+func GetAllDevicesStatus(c *gin.Context) {
+	openId := c.Request.FormValue("openId")
+	dao := dao.DeviceDao{}
+	userDevice, err := dao.GetDevicesByUser(openId)
+	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code": 1,
-			"msg":  "未连接",
+			"msg":  "未找到当前用户",
 		})
 		return
-	} else {
-		//这里去树莓派请求状态
-		c.JSON(http.StatusOK, gin.H{
-			"code": 0,
-			"msg":  "已经连接",
-		})
 	}
+	mangager := GetManager()
+	status := mangager.GetClientStatus(userDevice)
+	c.JSON(http.StatusOK, gin.H{
+		"code":   0,
+		"result": status,
+	})
+
 }
 
 // GetDevice 获取局域网设备
@@ -81,7 +85,7 @@ func GetStatus(c *gin.Context) {
 // @Router /getdevice [get]
 func GetDevice(c *gin.Context) {
 	deDao := dao.DeviceDao{}
-	devices, err := deDao.GetDevice(c.ClientIP())
+	devices, err := deDao.GetDeviceByIP(c.ClientIP())
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusOK, gin.H{
@@ -103,20 +107,21 @@ func GetDevice(c *gin.Context) {
 // @Tags Control
 // @Accept  application/json
 // @Product application/json
-// @Param data body model.UserDevice true "UserDevice"
+// @Param data body dao.BindDeviceDao true "UserDevice"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /binddevice [post]
 func BindDevice(c *gin.Context) {
-	data := dao.UserDeviceDao{}
-	if err := c.ShouldBind(&data); err != nil {
+	bindUser := dao.BindDeviceDao{}
+	if err := c.ShouldBind(&bindUser); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code": 1,
 			"msg":  err.Error,
 		})
 		return
 	}
-	if err := data.Bind(); err != nil {
+	data := dao.DeviceDao{}
+	if err := data.Bind(bindUser, c.ClientIP()); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code": 1,
 			"msg":  err.Error,

@@ -56,7 +56,9 @@ func Login(c *gin.Context) {
 	fmt.Println(result)
 	data.UserId = result.OpenId
 	data.UserOnline()
+	c.Set("openId", &result.OpenId)
 	c.JSON(http.StatusOK, gin.H{
-		"code": 0,
+		"code":   0,
+		"openId": result.OpenId,
 	})
 }
