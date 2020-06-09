@@ -1,0 +1,121 @@
+definitions:
+  model.Message:
+    properties:
+      during:
+        description: 持续时间
+        type: integer
+      type:
+        description: 1打开 2 关闭
+        type: integer
+    required:
+    - type
+    type: object
+  model.Res:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
+      error:
+        type: string
+      msg:
+        type: string
+    type: object
+  model.UserDevice:
+    properties:
+      deviceId:
+        type: string
+      userId:
+        type: string
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /binddevice:
+    post:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: UserDevice
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserDevice'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      summary: 绑定设备
+      tags:
+      - Control
+  /control:
+    post:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: message
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.Message'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      summary: 远程控制
+      tags:
+      - Control
+  /getdevice:
+    get:
+      consumes:
+      - application/json
+      description: 获取JSON
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      summary: 获取局域网设备
+      tags:
+      - Control
+  /getstatus:
+    get:
+      consumes:
+      - application/json
+      description: 获取JSON
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      summary: 获取状态
+      tags:
+      - Control
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: res
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.Res'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      summary: 小程序登录
+      tags:
+      - Login
+swagger: "2.0"
